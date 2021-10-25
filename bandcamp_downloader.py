@@ -150,11 +150,10 @@ def download_album(link):
         except Exception:
             pass
 
-        print("Downloading " + full_track_filename)
-        print("Artist " + artist)
-
         # downloading and naming mp3 file
         full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
+        print("Downloading " + full_track_filename)
+        print("Artist " + artist)
         fallbacks = ['19', '18', '17']
         for z in range(len(fallbacks)):
             try:
