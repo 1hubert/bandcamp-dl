@@ -43,7 +43,7 @@ options.add_argument("log-level=3")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
-def download_album(self, link):
+def download_album(link):
     try:
         browser.get(link)
         time.sleep(1.5)
@@ -198,10 +198,9 @@ def download_album(self, link):
 
 if __name__ == "__main__":
     while True:
+        link = input("Paste Bandcamp artist/label link here: ")
         browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
         LOGGER.setLevel(logging.WARNING)
-
-        link = input("Paste Bandcamp artist/label link here: ")
         browser.get(link)
         time.sleep(1.5)
 
