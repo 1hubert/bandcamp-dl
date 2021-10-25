@@ -43,14 +43,11 @@ options.add_argument("log-level=3")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
-
 class BandcampDownloader:
     def __init__(self):
         #self.browser = webdriver.Chrome(r'C:\Users\Hubert\AppData\Local\Programs\Python\Python39\chromedriver.exe', options=options)
-        self.browser = webdriver.Chrome(r'./resources/chromedriver', options=options)
-        browser = self.browser
+        self.browser = webdriver.Chrome('./resources/chromedriver.exe', options=options)
         LOGGER.setLevel(logging.WARNING)
-
 
     def download_album(self, link):
         try:
@@ -65,8 +62,6 @@ class BandcampDownloader:
 
         except (InvalidArgumentException, NoSuchElementException):
             print("Ivalid link")
-
-        
 
         # extracting song titles and numbers
         print("Downloading album info")
@@ -133,7 +128,6 @@ class BandcampDownloader:
         #        pass
         #    os.chdir(valid_name(artist) + " - " + valid_name(album_name + " [128K]"))
 
-
         # extracting year and artist
         year = description[0][-4:]
         #artist = browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text
@@ -163,7 +157,6 @@ class BandcampDownloader:
         next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
 
         for i in range(len(numbers_and_titles)):
-            
             track_num = add_zeros(i+1)
             title = valid_name(numbers_and_titles[i][1])
             artist = browser.find_element_by_css_selector("[class='title']").text.split(" - ")[0]
@@ -174,9 +167,6 @@ class BandcampDownloader:
             except Exception:
                 pass
             
-            
-            
-
             # preparing better title and track number
             #title = valid_name(numbers_and_titles[i][1])
             #track_num = add_zeros(numbers_and_titles[i][0])
@@ -228,14 +218,10 @@ class BandcampDownloader:
             # now the mp3 variable is holding different link
             if i+1 < len(numbers_and_titles):
                 next_track.click()
-
         
         print("Finished downloading " + album_name)
         print()
-
         os.chdir("..")
-
-        
 
 
 if __name__ == "__main__":
@@ -244,16 +230,12 @@ if __name__ == "__main__":
         LOGGER.setLevel(logging.WARNING)
 
         link = input("Paste your Bandcamp artist link there: ")
-
         browser.get(link)
-
-        
         time.sleep(1.5)
 
         tags = browser.find_elements_by_xpath("//*[@id=\"pgBd\"]/div[2]/ol/li/a")
 
         album_links = []
-        
         for link in tags:
             album_links.append(link.get_attribute("href"))
             print(link.get_attribute("href"))
