@@ -44,17 +44,13 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
 def download_album(link):
-    try:
-        browser.get(link)
-        time.sleep(1.5)
+    browser.get(link)
+    time.sleep(1.5)
 
-        # starting and stoping the first song to initialize the player
-        play_button = browser.find_element_by_class_name("playbutton")
-        play_button.click()
-        play_button.click()
-
-    except (InvalidArgumentException, NoSuchElementException):
-        print("Ivalid link")
+    # starting and stoping the first song to initialize the player
+    play_button = browser.find_element_by_class_name("playbutton")
+    play_button.click()
+    play_button.click()
 
     # extracting song titles and numbers
     print("Downloading album info")
