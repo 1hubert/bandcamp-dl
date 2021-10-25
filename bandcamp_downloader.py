@@ -4,8 +4,9 @@ from selenium.common.exceptions import InvalidArgumentException, NoSuchElementEx
 import logging
 from selenium.webdriver.remote.remote_connection import LOGGER
 import mutagen
-from mutagen.id3 import ID3, TIT2, TALB, TPE1, TDRC, TRCK, APIC
+from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC
 import time
+import calendar
 import urllib.request
 
 
@@ -18,12 +19,12 @@ import urllib.request
 # TDRC: year
 
 
-# function validating file names
+# function replacing bad characters in filenames with an underscore
 def valid_name(name):
     deletechars = r"\/:*?\"<>|"
     for i in deletechars:
         if i in name:
-            name = name.replace(i, "_")
+            name = name.replace(i, " ")
     return name
 
 
@@ -42,41 +43,30 @@ options.add_argument("log-level=3")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
+
 class BandcampDownloader:
     def __init__(self):
         #self.browser = webdriver.Chrome(r'C:\Users\Hubert\AppData\Local\Programs\Python\Python39\chromedriver.exe', options=options)
         self.browser = webdriver.Chrome(r'./resources/chromedriver', options=options)
-    
-    def download_album(self):
         browser = self.browser
         LOGGER.setLevel(logging.WARNING)
 
-        while True:
-            link = input("Paste your Bandcamp album link there: ")
 
-            try:
-                browser.get(link)
-
-                time.sleep(1.5)
-
-                # starting and stoping the first song to initialize the player
-                play_button = browser.find_element_by_class_name("playbutton")
-                play_button.click()
-                play_button.click()
-                break
-
-            except (InvalidArgumentException, NoSuchElementException):
-                print("Ivalid link")
-                continue
-
-        # making new directory with the album name
-        album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
-        print("Making new directory: " + album_name)
+    def download_album(self, link):
         try:
-            os.mkdir(valid_name(album_name + " [128K]"))
-        except OSError:
-            pass
-        os.chdir(valid_name(album_name + " [128K]"))
+            browser.get(link)
+
+            time.sleep(1.5)
+
+            # starting and stoping the first song to initialize the player
+            play_button = browser.find_element_by_class_name("playbutton")
+            play_button.click()
+            play_button.click()
+
+        except (InvalidArgumentException, NoSuchElementException):
+            print("Ivalid link")
+
+        
 
         # extracting song titles and numbers
         print("Downloading album info")
@@ -96,6 +86,11 @@ class BandcampDownloader:
                     title += '. '
                 if idx > 0:
                     title += el
+            try:
+                if title[2] == "." and title[3] == " ":
+                    title=title[4:]
+            except Exception:
+                pass
 
             numbers_and_titles.append([num, title])
 
@@ -105,6 +100,39 @@ class BandcampDownloader:
             numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&amp;", "&")
             numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&lt;", "<")
             numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&gt;", ">")
+
+        # album full date
+        date = browser.find_element_by_css_selector("[class='tralbumData tralbum-credits']").text.strip().split("\n")[0]
+        date = date[9:]
+
+        date_year = date.split(", ")[1]
+        date_month = str(list(calendar.month_name).index(date.split(" ")[0]))
+        date_days = date.split(", ")[0].split(" ")[1]
+        if len(date_days) == 1:
+            date_days = "0" + date_days
+        
+        date = date_year + "." + date_month + "." + date_days
+
+        # making new directory with the album name
+        album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
+        album_folder_name = valid_name("[" + date + "] - " + album_name + " [128K]")
+        print("Making new directory: " + album_folder_name)
+        try:
+            os.mkdir(album_folder_name)
+        except OSError:
+            pass
+        os.chdir(album_folder_name)
+        
+        #except Exception:
+        #    artist = browser.find_element_by_css_selector("[class='title']").text.split(" - ")[0]
+        #    album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
+        #    print("Making new directory: " + album_name)
+        #    try:
+        #        os.mkdir(valid_name(artist) + " - " + valid_name(album_name + " [128K]"))
+        #    except OSError:
+        #        pass
+        #    os.chdir(valid_name(artist) + " - " + valid_name(album_name + " [128K]"))
+
 
         # extracting year and artist
         year = description[0][-4:]
@@ -135,42 +163,66 @@ class BandcampDownloader:
         next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
 
         for i in range(len(numbers_and_titles)):
+            
+            track_num = add_zeros(i+1)
+            title = valid_name(numbers_and_titles[i][1])
+            artist = browser.find_element_by_css_selector("[class='title']").text.split(" - ")[0]
+ 
+            try:
+                artist = artist + " feat. " + title.split(" feat. ")[1]
+                title = title.split(" feat. ")[0]
+            except Exception:
+                pass
+            
+            
+            
 
             # preparing better title and track number
-            title = valid_name(numbers_and_titles[i][1])
-            track_num = add_zeros(numbers_and_titles[i][0])
+            #title = valid_name(numbers_and_titles[i][1])
+            #track_num = add_zeros(numbers_and_titles[i][0])
 
             # downloading and naming mp3 file
-            print("Downloading " + track_num + title + ".mp3")
+            #if browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text == browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text and artist != title :
+            full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
+            #else:
+            #    artist = browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text
+            #    full_track_filename = track_num + valid_name(title) + ".mp3"
+            print("Downloading " + full_track_filename)
+            print("Artist " + artist)
+            #print("link do wykonawcy1: ", browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text)
+            #print("link do wykonawcy2: ", browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text)
 
             fallbacks = ['19', '18', '17']
             for z in range(len(fallbacks)):
                 try:
                     mp3 = browser.find_element_by_css_selector("body > audio:nth-child(" + fallbacks[z] + ")").get_attribute("src")
-                    urllib.request.urlretrieve(mp3, track_num + title + ".mp3")
+                    urllib.request.urlretrieve(mp3, full_track_filename)
                     break
                 except Exception:
                     continue
 
             # adding tags
-            print("Adding tags and cover to " + track_num + title + ".mp3")
+            print("Adding tags and cover to " + full_track_filename)
             try:
-                tags = ID3(os.getcwd() + "\\" + track_num + title + ".mp3")
+                tags = ID3(os.getcwd() + "\\" + full_track_filename)
             except mutagen.id3.ID3NoHeaderError:
                 tags = ID3()
 
             # those tags are different in each iteration    
             tags["TRCK"] = TRCK(encoding=3, text=numbers_and_titles[i][0])
-            tags["TIT2"] = TIT2(encoding=3, text=numbers_and_titles[i][1])
+            try:
+                tags["TIT2"] = TIT2(encoding=3, text=numbers_and_titles[i][1].split(" - ")[1])
+            except Exception:
+                tags["TIT2"] = TIT2(encoding=3, text=title)
 
             # those tags are constant
             tags["TALB"] = TALB(encoding=3, text=album_name)
             tags["TPE1"] = TPE1(encoding=3, text=artist)
-            tags["TDRC"] = TDRC(encoding=3, text=year)
+            #tags["TDRC"] = TDRC(encoding=3, text=year)
             tags["APIC"] = APIC(3, 'image/jpeg', 3, 'Cover', imagedata)
 
             # saving tags
-            tags.save(os.getcwd() + "\\" + track_num + title + ".mp3", v2_version=3)
+            tags.save(os.getcwd() + "\\" + full_track_filename, v2_version=3)
 
             # changing the track
             # now the mp3 variable is holding different link
@@ -183,7 +235,30 @@ class BandcampDownloader:
 
         os.chdir("..")
 
+        
+
 
 if __name__ == "__main__":
     while True:
-        BandcampDownloader().download_album()
+        browser = webdriver.Chrome(r'./resources/chromedriver', options=options)
+        LOGGER.setLevel(logging.WARNING)
+
+        link = input("Paste your Bandcamp artist link there: ")
+
+        browser.get(link)
+
+        
+        time.sleep(1.5)
+
+        tags = browser.find_elements_by_xpath("//*[@id=\"pgBd\"]/div[2]/ol/li/a")
+
+        album_links = []
+        
+        for link in tags:
+            album_links.append(link.get_attribute("href"))
+            print(link.get_attribute("href"))
+
+        print("Downloading " + str(len(album_links)) + " albums")
+
+        for actual_link in album_links:
+            BandcampDownloader().download_album(actual_link)
