@@ -156,7 +156,7 @@ def download_album(link):
                 mp3 = browser.find_element_by_css_selector("body > audio:nth-child(" + fallbacks[z] + ")").get_attribute("src")
                 urllib.request.urlretrieve(mp3, full_track_filename)
                 break
-            except Exception:
+            except ValueError:
                 continue
 
         # adding tags
@@ -170,7 +170,7 @@ def download_album(link):
         tags["TRCK"] = TRCK(encoding=3, text=numbers_and_titles[i][0])
         try:
             tags["TIT2"] = TIT2(encoding=3, text=numbers_and_titles[i][1].split(" - ")[1])
-        except Exception:
+        except IndexError:
             tags["TIT2"] = TIT2(encoding=3, text=title)
 
         # those tags are constant in each iteration
@@ -192,6 +192,7 @@ def download_album(link):
 
 
 if __name__ == "__main__":
+    os.chdir("downloads")
     while True:
         link = input("Paste Bandcamp artist/label link here: ")
         browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
