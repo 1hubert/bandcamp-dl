@@ -30,8 +30,8 @@ def valid_name(name):
 
 # preparing the options for the chrome driver
 options = webdriver.ChromeOptions()
-options.add_argument("--mute-audio")
 #options.add_argument("headless")
+options.add_argument("--mute-audio")
 options.add_argument("--disable-extensions")
 options.add_argument("--proxy-server='direct://'")
 options.add_argument("--proxy-bypass-list=*")
@@ -143,7 +143,7 @@ def download_album(link):
         try:
             artist = artist + " feat. " + title.split(" feat. ")[1]
             title = title.split(" feat. ")[0]
-        except Exception:
+        except IndexError:
             pass
 
         # downloading and naming mp3 file
