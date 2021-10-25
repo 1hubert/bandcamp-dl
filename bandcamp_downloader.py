@@ -31,7 +31,7 @@ def valid_name(name):
 # preparing the options for the chrome driver
 options = webdriver.ChromeOptions()
 options.add_argument("--mute-audio")
-options.add_argument("headless")
+#options.add_argument("headless")
 options.add_argument("--disable-extensions")
 options.add_argument("--proxy-server='direct://'")
 options.add_argument("--proxy-bypass-list=*")
@@ -46,8 +46,9 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 class BandcampDownloader:
     def __init__(self):
         #self.browser = webdriver.Chrome(r'C:\Users\Hubert\AppData\Local\Programs\Python\Python39\chromedriver.exe', options=options)
-        self.browser = webdriver.Chrome('./resources/chromedriver.exe', options=options)
-        LOGGER.setLevel(logging.WARNING)
+        #self.browser = webdriver.Chrome('./resources/chromedriver.exe', options=options)
+        #LOGGER.setLevel(logging.WARNING)
+        pass
 
     def download_album(self, link):
         try:
@@ -116,16 +117,6 @@ class BandcampDownloader:
         except OSError:
             pass
         os.chdir(album_folder_name)
-        
-        #except Exception:
-        #    artist = browser.find_element_by_css_selector("[class='title']").text.split(" - ")[0]
-        #    album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
-        #    print("Making new directory: " + album_name)
-        #    try:
-        #        os.mkdir(valid_name(artist) + " - " + valid_name(album_name + " [128K]"))
-        #    except OSError:
-        #        pass
-        #    os.chdir(valid_name(artist) + " - " + valid_name(album_name + " [128K]"))
 
         # extracting year and artist
         year = description[0][-4:]
@@ -165,22 +156,12 @@ class BandcampDownloader:
                 title = title.split(" feat. ")[0]
             except Exception:
                 pass
-            
-            # preparing better title and track number
-            #title = valid_name(numbers_and_titles[i][1])
-            #track_num = add_zeros(numbers_and_titles[i][0])
 
-            # downloading and naming mp3 file
-            #if browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text == browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text and artist != title :
-            full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
-            #else:
-            #    artist = browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text
-            #    full_track_filename = track_num + valid_name(title) + ".mp3"
             print("Downloading " + full_track_filename)
             print("Artist " + artist)
-            #print("link do wykonawcy1: ", browser.find_element_by_css_selector("[style='margin:0px;'] [href='https://diversesystem.bandcamp.com']").text)
-            #print("link do wykonawcy2: ", browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text)
 
+            # downloading and naming mp3 file
+            full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
             fallbacks = ['19', '18', '17']
             for z in range(len(fallbacks)):
                 try:
@@ -232,7 +213,6 @@ if __name__ == "__main__":
         time.sleep(1.5)
 
         tags = browser.find_elements_by_xpath("//*[@id=\"pgBd\"]/div[2]/ol/li/a")
-
         album_links = []
         for link in tags:
             album_links.append(link.get_attribute("href"))
@@ -242,3 +222,5 @@ if __name__ == "__main__":
 
         for actual_link in album_links:
             BandcampDownloader().download_album(actual_link)
+
+        browser.close()
