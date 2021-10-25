@@ -4,7 +4,7 @@ from selenium.common.exceptions import InvalidArgumentException, NoSuchElementEx
 import logging
 from selenium.webdriver.remote.remote_connection import LOGGER
 import mutagen
-from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC
+from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
 import time
 import calendar
 import urllib.request
@@ -52,7 +52,6 @@ class BandcampDownloader:
     def download_album(self, link):
         try:
             browser.get(link)
-
             time.sleep(1.5)
 
             # starting and stoping the first song to initialize the player
@@ -205,17 +204,16 @@ class BandcampDownloader:
             except Exception:
                 tags["TIT2"] = TIT2(encoding=3, text=title)
 
-            # those tags are constant
+            # those tags are constant in each iteration
             tags["TALB"] = TALB(encoding=3, text=album_name)
             tags["TPE1"] = TPE1(encoding=3, text=artist)
-            #tags["TDRC"] = TDRC(encoding=3, text=year)
+            tags["TDRC"] = TDRC(encoding=3, text=year)
             tags["APIC"] = APIC(3, 'image/jpeg', 3, 'Cover', imagedata)
 
             # saving tags
             tags.save(os.getcwd() + "\\" + full_track_filename, v2_version=3)
 
-            # changing the track
-            # now the mp3 variable is holding different link
+            # changing the track so the mp3 variable is holds a different link
             if i+1 < len(numbers_and_titles):
                 next_track.click()
         
@@ -226,10 +224,10 @@ class BandcampDownloader:
 
 if __name__ == "__main__":
     while True:
-        browser = webdriver.Chrome(r'./resources/chromedriver', options=options)
+        browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
         LOGGER.setLevel(logging.WARNING)
 
-        link = input("Paste your Bandcamp artist link there: ")
+        link = input("Paste Bandcamp artist/label link here: ")
         browser.get(link)
         time.sleep(1.5)
 
