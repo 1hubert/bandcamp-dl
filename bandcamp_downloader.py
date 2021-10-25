@@ -192,11 +192,12 @@ def download_album(link):
 
 
 if __name__ == "__main__":
+    browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
+    LOGGER.setLevel(logging.WARNING)
     os.chdir("downloads")
+
     while True:
         link = input("Paste Bandcamp artist/label link here: ")
-        browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
-        LOGGER.setLevel(logging.WARNING)
         browser.get(link)
         time.sleep(1.5)
 
