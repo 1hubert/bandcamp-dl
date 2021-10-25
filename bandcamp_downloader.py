@@ -1,13 +1,13 @@
+import time
 import os
-from selenium import webdriver
-from selenium.common.exceptions import InvalidArgumentException, NoSuchElementException
 import logging
+import calendar
+import urllib.request
+
+from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import LOGGER
 import mutagen
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
-import time
-import calendar
-import urllib.request
 
 
 # ID3 info:
