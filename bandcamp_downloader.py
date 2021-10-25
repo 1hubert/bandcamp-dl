@@ -73,7 +73,7 @@ def download_album(link):
         try:
             if title[2] == "." and title[3] == " ":
                 title=title[4:]
-        except Exception:
+        except IndexError:
             pass
 
         numbers_and_titles.append([num, title])
