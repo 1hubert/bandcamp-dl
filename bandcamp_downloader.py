@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
     while True:
         link = input("Paste Bandcamp artist/label link here: ")
-        while 'bandcamp' not in link:
+        while 'bandcamp.com' not in link:
             link = input("This is not a bandcamp link, try again:  ")
         
         browser.get(link)
