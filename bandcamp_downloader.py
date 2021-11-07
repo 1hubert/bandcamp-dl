@@ -19,8 +19,9 @@ from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
     TDRC: year
 """
 
-# function replacing bad characters in filenames with an underscore
+
 def valid_name(name):
+    """Replace bad characters in filenames with an underscore."""
     deletechars = r"\/:*?\"<>|"
     for i in deletechars:
         if i in name:
@@ -42,17 +43,17 @@ def download_album(link):
     browser.get(link)
     time.sleep(1.5)
 
-    # starting and stoping the first song to initialize the player
+    # Play and pause the first song to initialize the player.
     play_button = browser.find_element_by_class_name("playbutton")
     play_button.click()
     play_button.click()
 
-    # extracting song titles and numbers
+    # Extract song numbers and titles.
     print("Downloading album info")
     description = browser.find_element_by_css_selector("[name='description'").get_attribute("content").strip()
     description = description.split("\n\n")
 
-    # seperating numbers from titles
+    # Seperate numbers from titles.
     numbers_and_titles_together = description[1].split("\n")
     numbers_and_titles =[]
     for elem in numbers_and_titles_together:
@@ -73,14 +74,14 @@ def download_album(link):
 
         numbers_and_titles.append([num, title])
 
-    # repairing bad symbols in numbers_and_titles
+    # Repair bad symbols.
     for i in range(len(numbers_and_titles)):
         numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&#39;", "\'")
         numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&amp;", "&")
         numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&lt;", "<")
         numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace("&gt;", ">")
 
-    # album full date
+    # Find the album release date on Bandcamp.
     date = browser.find_element_by_css_selector("[class='tralbumData tralbum-credits']").text.strip().split("\n")[0]
     date = date[9:]
 
@@ -92,7 +93,7 @@ def download_album(link):
     
     date = date_year + "." + date_month + "." + date_days
 
-    # making new directory with the album name
+    # Make a new directory with the album's name.
     album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
     album_folder_name = valid_name("[" + date + "] - " + album_name + " [128K]")
     print("Making new directory: " + album_folder_name)
@@ -102,20 +103,20 @@ def download_album(link):
         pass
     os.chdir(album_folder_name)
 
-    # extracting year and artist
+    # Extract year and artist.
     year = description[0][-4:]
     #artist = browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text
     artist = browser.find_element_by_css_selector("[property='og:site_name']").text
 
-    # album cover
+    # Download and save album cover.
     print("Downloading album cover")
     album_cover_link = browser.find_element_by_css_selector("[rel='image_src']").get_attribute("href")
     urllib.request.urlretrieve(album_cover_link, "cover.jpg")
     pic_file = os.getcwd() + "\\" + "cover.jpg"
     imagedata = open(pic_file, 'rb').read()
 
-    # that function will be helfpful to prettify the file names
     def add_zeros(num):
+        """Prettify the file names."""
         max_num = len(numbers_and_titles)
 
         if max_num > 99:
@@ -127,7 +128,7 @@ def download_album(link):
         elif max_num < 10:
             return str(num) + " "
 
-    # "Next Track" button will be used to gain all the player links from the album
+    # Needed to get all of the album's mp3s.
     next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
 
     for i in range(len(numbers_and_titles)):
@@ -141,7 +142,7 @@ def download_album(link):
         except IndexError:
             pass
 
-        # downloading and naming mp3 file
+        # Download and name the mp3 file.
         full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
         print("Downloading " + full_track_filename + " (Artist: " + artist + ")")
         fallbacks = ['19', '18', '17']
@@ -153,30 +154,30 @@ def download_album(link):
             except ValueError:
                 continue
 
-        # adding tags
+        # Add tags.
         print("Adding tags and cover to " + full_track_filename)
         try:
             tags = ID3(os.getcwd() + "\\" + full_track_filename)
         except mutagen.id3.ID3NoHeaderError:
             tags = ID3()
 
-        # those tags are different in each iteration    
+        # Those tags are different in each iteration.
         tags["TRCK"] = TRCK(encoding=3, text=numbers_and_titles[i][0])
         try:
             tags["TIT2"] = TIT2(encoding=3, text=numbers_and_titles[i][1].split(" - ")[1])
         except IndexError:
             tags["TIT2"] = TIT2(encoding=3, text=title)
 
-        # those tags are constant in each iteration
+        # Those tags are constant in each iteration.
         tags["TALB"] = TALB(encoding=3, text=album_name)
         tags["TPE1"] = TPE1(encoding=3, text=artist)
         tags["TDRC"] = TDRC(encoding=3, text=year)
         tags["APIC"] = APIC(3, 'image/jpeg', 3, 'Cover', imagedata)
 
-        # saving tags
+        # Save tags.
         tags.save(os.getcwd() + "\\" + full_track_filename, v2_version=3)
 
-        # changing the track so the mp3 variable is holds a different link
+        # Change the track so the mp3 variable holds a different link.
         if i+1 < len(numbers_and_titles):
             next_track.click()
     
