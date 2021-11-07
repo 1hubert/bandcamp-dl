@@ -10,14 +10,14 @@ import mutagen
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
 
 
-# ID3 info:
-# APIC: picture
-# TIT2: title
-# TPE1: artist
-# TRCK: track number
-# TALB: album
-# TDRC: year
-
+"""ID3 info:
+    APIC: picture
+    TIT2: title
+    TPE1: artist
+    TRCK: track number
+    TALB: album
+    TDRC: year
+"""
 
 # function replacing bad characters in filenames with an underscore
 def valid_name(name):
