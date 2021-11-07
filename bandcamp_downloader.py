@@ -114,24 +114,15 @@ def download_album(link):
     pic_file = os.getcwd() + "\\" + "cover.jpg"
     imagedata = open(pic_file, 'rb').read()
 
-    def add_zeros(num):
-        """Prettify the file names."""
-        max_num = len(numbers_and_titles)
-
-        if max_num > 99:
-            return str(num).zfill(3) + " "
-
-        elif max_num > 9:
-            return str(num).zfill(2) + " "
-
-        elif max_num < 10:
-            return str(num) + " "
+    def add_leading_zeros(num):
+        """Return a prettified string with a space at the end."""
+        return str(num).zfill(len(str(len(numbers_and_titles)))) + " "
 
     # Needed to get all of the album's mp3s.
     next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
 
     for i in range(len(numbers_and_titles)):
-        track_num = add_zeros(i+1)
+        track_num = add_leading_zeros(i+1)
         title = valid_name(numbers_and_titles[i][1])
         artist = browser.find_element_by_css_selector("[class='title']").text.split(" - ")[0]
 
