@@ -213,4 +213,4 @@ if __name__ == "__main__":
             for actual_link in album_links:
                 download_album(actual_link)
 
-        browser.close()
+        browser.quit()
