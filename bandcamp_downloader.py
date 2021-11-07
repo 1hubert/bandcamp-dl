@@ -192,18 +192,25 @@ if __name__ == "__main__":
 
     while True:
         link = input("Paste Bandcamp artist/label link here: ")
+        while 'bandcamp' not in link:
+            link = input("This is not a bandcamp link, try again:  ")
+        
         browser.get(link)
         time.sleep(1.5)
 
-        tags = browser.find_elements_by_xpath("//*[@id=\"pgBd\"]/div[2]/ol/li/a")
-        album_links = []
-        for link in tags:
-            album_links.append(link.get_attribute("href"))
-            print(link.get_attribute("href"))
+        if 'album' in link:
+            download_album(link)
 
-        print("Downloading " + str(len(album_links)) + " albums")
+        else:
+            tags = browser.find_elements_by_xpath("//*[@id=\"pgBd\"]/div[2]/ol/li/a")
+            album_links = []
+            for link in tags:
+                album_links.append(link.get_attribute("href"))
+                print(link.get_attribute("href"))
 
-        for actual_link in album_links:
-            download_album(actual_link)
+            print("Downloading " + str(len(album_links)) + " albums")
+
+            for actual_link in album_links:
+                download_album(actual_link)
 
         browser.close()
