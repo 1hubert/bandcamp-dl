@@ -95,11 +95,9 @@ def download_album(link: str):
     # Make a new directory with the album's name.
     album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
     album_folder_name = valid_name(f'[{date}] - {album_name} [128K]')
+
     print(f'Making new directory: {album_folder_name}')
-    try:
-        os.mkdir(album_folder_name)
-    except OSError:
-        pass
+    os.makedirs(album_folder_name, exist_ok=True)
     os.chdir(album_folder_name)
 
     # Extract year and artist.
@@ -179,10 +177,7 @@ if __name__ == '__main__':
     browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
     LOGGER.setLevel(logging.WARNING)
 
-
     os.makedirs('downloads', exist_ok=True)
-
-
     os.chdir('downloads')
 
     while True:
