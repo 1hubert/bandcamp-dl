@@ -108,7 +108,7 @@ def download_album(link: str):
     print('Downloading album cover')
     album_cover_link = browser.find_element_by_css_selector("[rel='image_src']").get_attribute('href')
     urllib.request.urlretrieve(album_cover_link, 'cover.jpg')
-    pic_file = os.getcwd() + '\\' + 'cover.jpg'
+    pic_file = os.path.join(os.getcwd(), 'cover.jpg')
     imagedata = open(pic_file, 'rb').read()
 
     def add_leading_zeros(num: int):
@@ -144,7 +144,7 @@ def download_album(link: str):
         # Add tags.
         print(f'Adding tags and cover to {full_track_filename}')
         try:
-            tags = ID3(os.getcwd() + '\\' + full_track_filename)
+            tags = ID3(os.path.join(os.getcwd(), full_track_filename))
         except mutagen.id3.ID3NoHeaderError:
             tags = ID3()
 
@@ -162,7 +162,7 @@ def download_album(link: str):
         tags['APIC'] = APIC(3, 'image/jpeg', 3, 'Cover', imagedata)
 
         # Save tags.
-        tags.save(os.getcwd() + '\\' + full_track_filename, v2_version=3)
+        tags.save(os.path.join(os.getcwd(), full_track_filename), v2_version=3)
 
         # Change the track so the mp3 variable holds a different link.
         if i+1 < len(numbers_and_titles):
