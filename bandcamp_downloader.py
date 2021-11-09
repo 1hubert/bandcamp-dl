@@ -108,8 +108,8 @@ def download_album(link: str):
     print('Downloading album cover')
     album_cover_link = browser.find_element_by_css_selector("[rel='image_src']").get_attribute('href')
     urllib.request.urlretrieve(album_cover_link, 'cover.jpg')
-    pic_file = os.path.join(os.getcwd(), 'cover.jpg')
-    imagedata = open(pic_file, 'rb').read()
+    cover_path = os.path.join(os.getcwd(), 'cover.jpg')
+    imagedata = open(cover_path, 'rb').read()
 
     def add_leading_zeros(num: int):
         """Return a prettified string with a space at the end."""
