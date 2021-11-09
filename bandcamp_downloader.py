@@ -104,7 +104,6 @@ def download_album(link: str):
 
     # Extract year and artist.
     year = description[0][-4:]
-    #artist = browser.find_element_by_css_selector("[id='band-name-location'] [class='title']").text
     artist = browser.find_element_by_css_selector("[property='og:site_name']").text
 
     # Download and save album cover.
