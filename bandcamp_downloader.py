@@ -19,7 +19,7 @@ from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
 #   TDRC: year
 
 
-def valid_name(name):
+def valid_name(name: str):
     """Replace bad characters in filenames with an underscore."""
     deletechars = r"\/:*?\"<>|"
     for i in deletechars:
@@ -38,7 +38,7 @@ options.add_argument("log-level=3")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
-def download_album(link):
+def download_album(link: str):
     browser.get(link)
     time.sleep(1.5)
 
@@ -114,7 +114,7 @@ def download_album(link):
     pic_file = os.getcwd() + "\\" + "cover.jpg"
     imagedata = open(pic_file, 'rb').read()
 
-    def add_leading_zeros(num):
+    def add_leading_zeros(num: int):
         """Return a prettified string with a space at the end."""
         return str(num).zfill(len(str(len(numbers_and_titles)))) + " "
 
