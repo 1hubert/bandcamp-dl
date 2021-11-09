@@ -178,6 +178,11 @@ def download_album(link: str):
 if __name__ == '__main__':
     browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
     LOGGER.setLevel(logging.WARNING)
+
+
+    os.makedirs('downloads', exist_ok=True)
+
+
     os.chdir('downloads')
 
     while True:
