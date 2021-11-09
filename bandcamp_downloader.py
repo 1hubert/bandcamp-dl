@@ -88,9 +88,9 @@ def download_album(link: str):
     date_month = str(list(calendar.month_name).index(date.split(' ')[0]))
     date_days = date.split(', ')[0].split(' ')[1]
     if len(date_days) == 1:
-        date_days = '0' + date_days
+        date_days = f'0{date_days}'
     
-    date = date_year + '.' + date_month + '.' + date_days
+    date = f'{date_year}.{date_month}.{date_days}'
 
     # Make a new directory with the album's name.
     album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
@@ -124,18 +124,18 @@ def download_album(link: str):
         artist = browser.find_element_by_css_selector("[class='title']").text.split(' - ')[0]
 
         try:
-            artist = artist + ' feat. ' + title.split(' feat. ')[1]
+            artist = f'{artist} feat. {title.split(" feat. ")[1]}'
             title = title.split(' feat. ')[0]
         except IndexError:
             pass
 
         # Download and name the mp3 file.
-        full_track_filename = track_num + valid_name(artist) + ' - ' + valid_name(title) + '.mp3'
+        full_track_filename = f'{track_num}{valid_name(artist)} - {valid_name(title)}.mp3'
         print(f'Downloading {full_track_filename} (Artist: {artist})')
         fallbacks = ['19', '18', '17']
         for z in range(len(fallbacks)):
             try:
-                mp3 = browser.find_element_by_css_selector('body > audio:nth-child(' + fallbacks[z] + ')').get_attribute('src')
+                mp3 = browser.find_element_by_css_selector(f'body > audio:nth-child({fallbacks[z]})').get_attribute('src')
                 urllib.request.urlretrieve(mp3, full_track_filename)
                 break
             except ValueError:
