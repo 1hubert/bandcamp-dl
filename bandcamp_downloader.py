@@ -95,7 +95,7 @@ def download_album(link: str):
     # Make a new directory with the album's name.
     album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
     album_folder_name = valid_name("[" + date + "] - " + album_name + " [128K]")
-    print("Making new directory: " + album_folder_name)
+    print(f"Making new directory: {album_folder_name}")
     try:
         os.mkdir(album_folder_name)
     except OSError:
@@ -134,7 +134,7 @@ def download_album(link: str):
 
         # Download and name the mp3 file.
         full_track_filename = track_num + valid_name(artist) + " - " + valid_name(title) + ".mp3"
-        print("Downloading " + full_track_filename + " (Artist: " + artist + ")")
+        print(f"Downloading {full_track_filename} (Artist: {artist})")
         fallbacks = ['19', '18', '17']
         for z in range(len(fallbacks)):
             try:
@@ -145,7 +145,7 @@ def download_album(link: str):
                 continue
 
         # Add tags.
-        print("Adding tags and cover to " + full_track_filename)
+        print(f"Adding tags and cover to {full_track_filename}")
         try:
             tags = ID3(os.getcwd() + "\\" + full_track_filename)
         except mutagen.id3.ID3NoHeaderError:
@@ -171,7 +171,7 @@ def download_album(link: str):
         if i+1 < len(numbers_and_titles):
             next_track.click()
     
-    print("Finished downloading " + album_name)
+    print(f"Finished downloading {album_name}")
     print()
     os.chdir("..")
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
                 album_links.append(link.get_attribute("href"))
                 print(link.get_attribute("href"))
 
-            print("Downloading " + str(len(album_links)) + " albums")
+            print(f"Downloading {len(album_links)} albums")
 
             for actual_link in album_links:
                 download_album(actual_link)
