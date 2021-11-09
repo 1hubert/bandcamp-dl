@@ -94,7 +94,7 @@ def download_album(link: str):
 
     # Make a new directory with the album's name.
     album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
-    album_folder_name = valid_name('[' + date + '] - ' + album_name + ' [128K]')
+    album_folder_name = valid_name(f'[{date}] - {album_name} [128K]')
     print(f'Making new directory: {album_folder_name}')
     try:
         os.mkdir(album_folder_name)
