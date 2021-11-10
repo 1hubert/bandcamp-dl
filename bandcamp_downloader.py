@@ -119,7 +119,7 @@ def download_album(link: str):
     next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
 
     for i in range(len(numbers_and_titles)):
-        track_num = add_leading_zeros(i+1)
+        track_num = add_leading_zeros(i + 1)
         title = valid_name(numbers_and_titles[i][1])
         artist = browser.find_element_by_css_selector("[class='title']").text.split(' - ')[0]
 
@@ -165,7 +165,7 @@ def download_album(link: str):
         tags.save(os.path.join(os.getcwd(), full_track_filename), v2_version=3)
 
         # Change the track so the mp3 variable holds a different link.
-        if i+1 < len(numbers_and_titles):
+        if i + 1 < len(numbers_and_titles):
             next_track.click()
     
     print(f'Finished downloading {album_name}')
