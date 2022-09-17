@@ -1,2 +1,3 @@
 selenium
 mutagen
+webdriver-manager

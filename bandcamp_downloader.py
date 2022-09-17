@@ -6,6 +6,10 @@ import urllib.request
 
 from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import LOGGER
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import mutagen
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, TRCK, APIC, TDRC
 
@@ -29,7 +33,7 @@ def valid_name(name: str):
 
 
 # preparing the options for the chrome driver
-options = webdriver.ChromeOptions()
+options = Options()
 options.add_argument('headless')
 options.add_argument('--mute-audio')
 options.add_argument('--disable-extensions')
@@ -43,13 +47,13 @@ def download_album(link: str):
     time.sleep(1.5)
 
     # Play and pause the first song to initialize the player.
-    play_button = browser.find_element_by_class_name('playbutton')
+    play_button = browser.find_element(By.CLASS_NAME, 'playbutton')
     play_button.click()
     play_button.click()
 
     # Extract song numbers and titles.
     print('Downloading album info')
-    description = browser.find_element_by_css_selector("[name='description']").get_attribute('content').strip()
+    description = browser.find_element(By.CSS_SELECTOR, "[name='description']").get_attribute('content').strip()
     description = description.split('\n\n')
 
     # Seperate numbers from titles.
@@ -81,7 +85,7 @@ def download_album(link: str):
         numbers_and_titles[i][1] = str(numbers_and_titles[i][1]).replace('&gt;', '>')
 
     # Find the album release date on Bandcamp.
-    date = browser.find_element_by_css_selector("[class='tralbumData tralbum-credits']").text.strip().split('\n')[0]
+    date = browser.find_element(By.CSS_SELECTOR, "[class='tralbumData tralbum-credits']").text.strip().split('\n')[0]
     date = date[9:]
 
     date_year = date.split(', ')[1]
@@ -93,7 +97,7 @@ def download_album(link: str):
     date = f'{date_year}.{date_month}.{date_days}'
 
     # Make a new directory with the album's name.
-    album_name = browser.find_element_by_css_selector("[id='name-section'] [class='trackTitle']").text.strip()
+    album_name = browser.find_element(By.CSS_SELECTOR, "[id='name-section'] [class='trackTitle']").text.strip()
     album_folder_name = valid_name(f'[{date}] - {album_name} [128K]')
 
     print(f'Making new directory: {album_folder_name}')
@@ -102,11 +106,11 @@ def download_album(link: str):
 
     # Extract year and artist.
     year = description[0][-4:]
-    artist = browser.find_element_by_css_selector("[property='og:site_name']").text
+    artist = browser.find_element(By.CSS_SELECTOR, "[property='og:site_name']").text
 
     # Download and save album cover.
     print('Downloading album cover')
-    album_cover_link = browser.find_element_by_css_selector("[rel='image_src']").get_attribute('href')
+    album_cover_link = browser.find_element(By.CSS_SELECTOR, "[rel='image_src']").get_attribute('href')
     urllib.request.urlretrieve(album_cover_link, 'cover.jpg')
     cover_path = os.path.join(os.getcwd(), 'cover.jpg')
     imagedata = open(cover_path, 'rb').read()
@@ -116,12 +120,12 @@ def download_album(link: str):
         return str(num).zfill(len(str(len(numbers_and_titles)))) + ' '
 
     # Needed to get all of the album's mp3s.
-    next_track = browser.find_element_by_css_selector("[aria-label='Next track']")
+    next_track = browser.find_element(By.CSS_SELECTOR, "[aria-label='Next track']")
 
     for i in range(len(numbers_and_titles)):
         track_num = add_leading_zeros(i + 1)
         title = valid_name(numbers_and_titles[i][1])
-        artist = browser.find_element_by_css_selector("[class='title']").text.split(' - ')[0]
+        artist = browser.find_element(By.CSS_SELECTOR, "[class='title']").text.split(' - ')[0]
 
         try:
             artist = f'{artist} feat. {title.split(" feat. ")[1]}'
@@ -135,7 +139,7 @@ def download_album(link: str):
         fallbacks = ['19', '18', '17']
         for z in range(len(fallbacks)):
             try:
-                mp3 = browser.find_element_by_css_selector(f'body > audio:nth-child({fallbacks[z]})').get_attribute('src')
+                mp3 = browser.find_element(By.CSS_SELECTOR, f'body > audio:nth-child({fallbacks[z]})').get_attribute('src')
                 urllib.request.urlretrieve(mp3, full_track_filename)
                 break
             except ValueError:
@@ -174,7 +178,7 @@ def download_album(link: str):
 
 
 if __name__ == '__main__':
-    browser = webdriver.Chrome(r'./resources/chromedriver.exe', options=options)
+    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     LOGGER.setLevel(logging.WARNING)
 
     os.makedirs('downloads', exist_ok=True)
@@ -192,7 +196,7 @@ if __name__ == '__main__':
             download_album(link)
 
         else:
-            tags = browser.find_elements_by_xpath('//*[@id=\"pgBd\"]/div[2]/ol/li/a')
+            tags = browser.find_elements(By.XPATH, '//*[@id=\"pgBd\"]/div[2]/ol/li/a')
             album_links = []
             for link in tags:
                 album_links.append(link.get_attribute('href'))
